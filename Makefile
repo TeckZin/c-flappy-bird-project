@@ -4,6 +4,10 @@ CC := gcc
 # Compiler flags
 CFLAGS := -Wall -Wextra -Werror
 
+# SDL2 flags (adjust paths if necessary)
+SDL_CFLAGS := $(shell sdl2-config --cflags)
+SDL_LIBS := $(shell sdl2-config --libs)
+
 # Directories
 SRC_DIR := src
 BUILD_DIR := build
@@ -21,7 +25,7 @@ OBJS := $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 TARGET := flappy_bird_main
 
 # Include directories
-INCLUDES := -I$(SRC_DIR) -I$(EXTERNAL_DIR)
+INCLUDES := -I$(SRC_DIR) -I$(EXTERNAL_DIR) $(SDL_CFLAGS)
 
 # Default target
 all: $(BIN_DIR)/$(TARGET)
@@ -29,7 +33,7 @@ all: $(BIN_DIR)/$(TARGET)
 # Link object files to create the executable
 $(BIN_DIR)/$(TARGET): $(OBJS)
 	@mkdir -p $(BIN_DIR)
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@ $(SDL_LIBS)
 
 # Compile source files into object files
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
