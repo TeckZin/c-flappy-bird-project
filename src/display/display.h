@@ -1,5 +1,7 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
+#include "../../include/SDL2/SDL.h"
 
-void display(void);
+SDL_Window *display(int, int);
+
 #endif

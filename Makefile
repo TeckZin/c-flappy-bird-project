@@ -4,9 +4,13 @@ CC := gcc
 # Compiler flags
 CFLAGS := -Wall -Wextra -Werror
 
-# SDL2 flags (adjust paths if necessary)
-SDL_CFLAGS := $(shell sdl2-config --cflags)
-SDL_LIBS := $(shell sdl2-config --libs)
+# SDL2 and SDL2_image paths
+SDL2_PATH := /opt/homebrew/Cellar/sdl2/2.30.6
+SDL2_IMAGE_PATH := /opt/homebrew/Cellar/sdl2_image/2.8.2_1
+
+# SDL2 and SDL2_image flags
+SDL_CFLAGS := -I$(SDL2_PATH)/include/SDL2 -I$(SDL2_IMAGE_PATH)/include/SDL2
+SDL_LIBS := -L$(SDL2_PATH)/lib -L$(SDL2_IMAGE_PATH)/lib -lSDL2 -lSDL2_image
 
 # Directories
 SRC_DIR := src
