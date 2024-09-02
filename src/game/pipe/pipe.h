@@ -9,9 +9,9 @@ struct Pipe {
   SDL_Rect rect;
 };
 
-struct Pipe **generatePipe(int, int, SDL_Texture *);
+struct Pipe **generatePipe(int, int);
 
-SDL_Texture *renderPipeTexture(SDL_Renderer *renderer);
+void renderPipeTexture(struct Pipe *, SDL_Renderer *renderer);
 
 void pipeUpdate(struct Pipe *);
 

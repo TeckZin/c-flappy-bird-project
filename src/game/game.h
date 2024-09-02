@@ -19,7 +19,7 @@ void appendPipes(struct Game *game, struct Pipe **pipes);
 
 int StartGame(struct Game *);
 
-void update(struct Game *, SDL_Renderer *, SDL_Texture *);
+void update(struct Game *, SDL_Renderer *);
 
 void cleanUpGame(struct Game *game);
 
