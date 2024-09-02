@@ -3,6 +3,7 @@
 #include "../display/display.h"
 #include "../renderer/renderer.h"
 #include "bird/bird.h"
+#include "pipe/pipe.h"
 #include <stdlib.h>
 
 struct Game *initGame(int WINDOW_HEIGHT, int WINDOW_WIDTH) {
@@ -16,16 +17,17 @@ struct Game *initGame(int WINDOW_HEIGHT, int WINDOW_WIDTH) {
     return NULL;
   }
 
-  game->birdObject->rect.x = 50;                // Starting X position
-  game->birdObject->rect.y = WINDOW_HEIGHT / 2; // Starting Y position
-  game->birdObject->rect.w = 50;                // Bird width
-  game->birdObject->rect.h = 50;                // Bird height
-  game->birdObject->deltaY = 0;
+  game->birdObject->rect.x = 50;  // Starting X position
+  game->birdObject->rect.y = 100; // Starting Y position
+  game->birdObject->rect.w = 50;  // Bird width
+  game->birdObject->rect.h = 50;  // Bird height
+  game->birdObject->deltaY = 0.0;
 
-  game->birdObject->posX = 0;
-  game->birdObject->posY = 0;
   game->windowHeight = WINDOW_HEIGHT;
   game->windowWidth = WINDOW_WIDTH;
+
+  game->pipeObjects = malloc(sizeof(struct Pipe *) * 10);
+  game->pipeCount = 0;
 
   return game;
 }
@@ -56,8 +58,9 @@ int StartGame(struct Game *g) {
     return 1;
   }
   renderBirdTexture(g->birdObject, renderer);
+  SDL_Texture *pipeTexture = renderPipeTexture(renderer);
 
-  update(g, renderer);
+  update(g, renderer, pipeTexture);
 
   // Destroy window
   SDL_DestroyRenderer(renderer);
@@ -68,9 +71,11 @@ int StartGame(struct Game *g) {
   return 0;
 }
 
-void update(struct Game *game, SDL_Renderer *renderer) {
+void update(struct Game *game, SDL_Renderer *renderer,
+            SDL_Texture *pipeTexture) {
   // Main loop flag
   int quit = 0;
+  int tick = 0;
 
   // Event handler
   SDL_Event e;
@@ -82,25 +87,68 @@ void update(struct Game *game, SDL_Renderer *renderer) {
       // User requests quit
       if (e.type == SDL_QUIT) {
         quit = 1;
+      } else if (e.type == SDL_KEYUP || e.type == SDLK_SPACE) {
+        handleBirdInput(game->birdObject);
+        printf("jump\n");
       }
     }
+
     SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
     SDL_RenderClear(renderer);
+    if (tick == 500) {
+      struct Pipe **pipes =
+          generatePipe(game->windowHeight, game->windowWidth, pipeTexture);
+      appendPipes(game, pipes);
+      printf("pipeCount: %d\n", game->pipeCount);
+      tick = 0;
+    }
 
-    SDL_Rect rect;
-    rect.x = 50;
-    rect.y = 50;
-    rect.w = 50;
-    rect.h = 50;
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    SDL_RenderFillRect(renderer, &rect);
-    // Clear screen
-
+    if (tick % 10 == 0) {
+      for (int i = 0; i < game->pipeCount; i++) {
+        pipeUpdate(game->pipeObjects[i]);
+      }
+      printf("\n");
+    }
     // Render bird with texture
+    if (!birdUpdate(game->birdObject, game->windowHeight)) {
+      quit = 1;
+    };
+    for (int i = 0; i < game->pipeCount; i++) {
+
+      SDL_RenderCopy(renderer, pipeTexture, NULL,
+                     &(game->pipeObjects[i]->rect));
+    }
     SDL_RenderCopy(renderer, game->birdObject->texture, NULL,
                    &(game->birdObject->rect));
 
     // Update screen
     SDL_RenderPresent(renderer);
+    tick++;
   }
 }
+
+void cleanUpGame(struct Game *game) {
+  for (int i = 0; i < game->pipeCount; i++) {
+    free(game->pipeObjects[i]);
+  }
+  free(game->pipeObjects);
+  free(game->birdObject);
+  free(game);
+}
+
+void appendPipes(struct Game *game, struct Pipe **pipes) {
+  if (game->pipeCount + 2 > 10) {
+    free(game->pipeObjects[0]);
+    free(game->pipeObjects[1]);
+    for (int i = 0; i < game->pipeCount - 2; i++) {
+      game->pipeObjects[i] = game->pipeObjects[i + 2];
+    }
+    game->pipeCount -= 2;
+  };
+  // Append the new pipes
+  game->pipeObjects[game->pipeCount++] = pipes[0];
+  game->pipeObjects[game->pipeCount++] = pipes[1];
+
+  // Free the temporary array (but not the Pipe structs it points to)
+  free(pipes);
+};

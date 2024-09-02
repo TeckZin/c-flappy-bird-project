@@ -1,10 +1,9 @@
 #ifndef BIRD_H
 #define BIRD_H
 #include "../../../include/SDL2/SDL.h"
+#include <stdbool.h>
 
 struct Bird {
-  int posX;
-  int posY;
   float deltaY;
   SDL_Texture *texture;
   SDL_Rect rect;
@@ -12,8 +11,12 @@ struct Bird {
 
 struct Bird *initBird();
 
+void handleBirdInput(struct Bird *b);
+
 void renderBirdTexture(struct Bird *bird, SDL_Renderer *renderer);
 
-void simmulateGravity(struct Bird *b);
+bool birdUpdate(struct Bird *, int);
+
+bool birdDead(struct Bird *, int);
 
 #endif
