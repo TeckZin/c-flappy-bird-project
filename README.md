@@ -1,7 +1,8 @@
 Flappy Bird Clone
 This project is a clone of the popular Flappy Bird game, implemented in C using the SDL2 library.
 Project Structure
-Copy.
+Copy
+```bash
 ├── Makefile
 ├── assets
 │   ├── flappy-bird.png
@@ -47,6 +48,7 @@ Copy.
 │       ├── renderer.c
 │       └── renderer.h
 └── tools
+```
 
 ## Prerequisites
 
